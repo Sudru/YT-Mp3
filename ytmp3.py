@@ -14,38 +14,46 @@ def getVideoUrls(url):
     arr = (re.findall('\/watch\?v\=.{11}', content))    
     all_links = ["https://www.youtube.com"+a for a in arr]
     unique_link = list(dict.fromkeys(all_links))
+    print("length:"+str(len(unique_link)))
     return unique_link
 
 
 def downloadSong(url):
-    yt = YouTube(url)
-    
+    yt = YouTube(url)   
+
 
     # extract only audio
-    video = yt.streams.filter(only_audio=True).first()
-
     
-    destination = './yt-download/'
-
+    title = yt.title
+    destination = './yt-mp3/'
+    if(title not in local_songs):
+        video = yt.streams.filter(only_audio=True).first()
     # download the file
-    out_file = video.download(output_path=destination)
-    
-    # save the file
-    base, ext = os.path.splitext(out_file)
-    new_file = base + '.mp3'
-    os.rename(out_file, new_file)    
+        out_file = video.download(output_path=destination)
+        
+        # save the file
+        base, ext = os.path.splitext(out_file)
+        new_file = base + '.mp3'
+        os.rename(out_file, new_file) 
+        
 
-    # result of success
-    print("Download Completed!!\n" + out_file.split('/')[-1]+'\n')
-
+        # result of success
+        print("Download Completed!!\n" + base.split('/')[-1])
+    else:
+        print("Skipping the Download")
 
 #main implementation
+
+local_songs=[]
 if len(sys.argv) == 2:
     url = sys.argv[1]
 else:
     url = str(input("Enter the Song or Playlist Url:\n"))
 
-
+this_dir = os.listdir('.')
+if("yt-mp3" in this_dir):
+    all_songs = os.listdir('./yt-mp3')
+    local_songs = [song.split('.')[0] for song in all_songs]
 if "playlist" in url:
     print("Downloading Playlist")
     song_list = getVideoUrls(url)
@@ -56,4 +64,4 @@ else:
     print("Downloading Mp3")
     downloadSong(url)
 
-print("\nDownload Location: \n"+os.getcwd()+'/yt-download/')
+print("\nDownload Location: \n"+os.getcwd()+'/yt-mp3/')
