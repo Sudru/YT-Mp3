@@ -24,11 +24,11 @@ def downloadSong(url):
 
     # extract only audio
     
-    title = yt.title
+    title = yt.title.replace('|','').replace('.','')
     destination = './yt-mp3/'
     if(title not in local_songs):
         video = yt.streams.filter(only_audio=True).first()
-    # download the file
+        # download the file
         out_file = video.download(output_path=destination)
         
         # save the file
@@ -38,9 +38,9 @@ def downloadSong(url):
         
 
         # result of success
-        print("Download Completed!!\n" + base.split('/')[-1])
+        print("Download Completed!!\n" + base.split('/')[-1]+"\n\n")
     else:
-        print("Skipping the Download")
+        print("Skipped: " + title)
 
 #main implementation
 
@@ -50,18 +50,21 @@ if len(sys.argv) == 2:
 else:
     url = str(input("Enter the Song or Playlist Url:\n"))
 
+# list the downloaded songs
 this_dir = os.listdir('.')
 if("yt-mp3" in this_dir):
     all_songs = os.listdir('./yt-mp3')
     local_songs = [song.split('.')[0] for song in all_songs]
+
+
 if "playlist" in url:
-    print("Downloading Playlist")
+    print("Downloading Playlist....")
     song_list = getVideoUrls(url)
     for song in song_list:
         downloadSong(song)
 
 else:
-    print("Downloading Mp3")
+    print("Downloading Mp3....")
     downloadSong(url)
 
 print("\nDownload Location: \n"+os.getcwd()+'/yt-mp3/')
