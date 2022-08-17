@@ -44,7 +44,7 @@ def downloadSong(url):
         print("Skipped: " + title)
 
 #main implementation
-os.chdir('/home/'+getpass.getuser()+'/Music')
+os.chdir(os.path.expanduser("~")+'/Music')
 local_songs=[]
 if len(sys.argv) == 2:
     url = sys.argv[1]
