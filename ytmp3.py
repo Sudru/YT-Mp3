@@ -5,6 +5,7 @@ import os
 import sys
 import re
 import requests
+import getpass
 
 
 def getVideoUrls(url):
@@ -43,7 +44,7 @@ def downloadSong(url):
         print("Skipped: " + title)
 
 #main implementation
-
+os.chdir('/home/'+getpass.getuser()+'/Music')
 local_songs=[]
 if len(sys.argv) == 2:
     url = sys.argv[1]
