@@ -1,19 +1,22 @@
 
 # YT-Mp3
-A simple **Youtube mp3 Downloader** made using python
 
+<img src="./ytmp3.png" width="300px"/>
+
+### A simple **Youtube mp3 Downloader** made using python
+
+# Features
+
+* **Download Individual Song**
+* **Download All Songs of a playlist ( *limited to 100 songs per playlist* )**
 # Requirements
 ```python
 pip install pytube
 ```
-##### or 
+#### or 
 ```python
 pip3 install pytube
 ```
-# Features
-
-* Download Individual Song 
-* Download All Songs of a playlist ( *limited to 100 songs per playlist* )
 
 # Usage
 
