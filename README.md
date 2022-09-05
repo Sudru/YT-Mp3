@@ -1,7 +1,7 @@
 
 # YT-Mp3
 
-<img src="./ytmp3.png" width="300px"/>
+<img src="./ytmp3-nobg.png" width="300px"/>
 
 ### A simple **Youtube mp3 Downloader** made using python
 
