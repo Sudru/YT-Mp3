@@ -1,71 +1,74 @@
 #!/usr/bin/env python3
 
-from pytube import YouTube
 import os
 import sys
 import re
 import requests
 import getpass
+import yt_dlp
 
 
+# Function to get video URLs from a playlist URL
 def getVideoUrls(url):
-    print("Getting Individual Video links...")
-    req = requests.get(url)
-    content = req.text   
-    arr = (re.findall('\/watch\?v\=.{11}', content))    
-    all_links = ["https://www.youtube.com"+a for a in arr]
-    unique_link = list(dict.fromkeys(all_links))
-    print("length:"+str(len(unique_link)))
-    return unique_link
+    try:
+        req = requests.get(url)
+        req.raise_for_status()
+        content = req.text
+        arr = re.findall(r"\/watch\?v\=.{11}", content)
+        all_links = ["https://www.youtube.com" + a for a in arr]
+        unique_links = list(set(all_links))
+        print("Number of videos in the playlist: " + str(len(unique_links)))
+        return unique_links
+    except Exception as e:
+        print(f"Error fetching video URLs: {e}")
+        return []
 
 
-def downloadSong(url):
-    yt = YouTube(url)   
+# Function to download and save a YouTube video as an MP3 file
+def downloadVideo(url, output_directory):
+    try:
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "outtmpl": os.path.join(output_directory, "%(title)s.%(ext)s"),
+            "postprocessors": [
+                {
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "192",
+                }
+            ],
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download(url)
+    except Exception as e:
+        print(f"Error downloading video: {e}")
 
 
-    # extract only audio
-    
-    title = yt.title.replace('|','').replace('.','')
-    destination = './yt-mp3/'
-    if(title not in local_songs):
-        video = yt.streams.filter(only_audio=True).first()
-        # download the file
-        out_file = video.download(output_path=destination)
-        
-        # save the file
-        base, ext = os.path.splitext(out_file)
-        new_file = base + '.mp3'
-        os.rename(out_file, new_file) 
-        
-
-        # result of success
-        print("Download Completed!!\n" + base.split('/')[-1]+"\n\n")
+# Function to handle downloading for a single video or a playlist
+def handleDownload(url, output_directory):
+    if "playlist" in url:
+        print("Downloading videos from playlist...")
+        video_urls = getVideoUrls(url)
+        for video_url in video_urls:
+            downloadVideo(video_url, output_directory)
     else:
-        print("Skipped: " + title)
-
-#main implementation
-os.chdir(os.path.expanduser("~")+'/Music')
-local_songs=[]
-if len(sys.argv) == 2:
-    url = sys.argv[1]
-else:
-    url = str(input("Enter the Song or Playlist Url:\n"))
-
-# list the downloaded songs
-this_dir = os.listdir('.')
-if("yt-mp3" in this_dir):
-    all_songs = os.listdir('./yt-mp3')
-    local_songs = [song.split('.')[0] for song in all_songs]
+        downloadVideo(url, output_directory)
 
 
-if "playlist" in url:
-    print("Downloading Playlist....")
-    song_list = getVideoUrls(url)
-    for song in song_list:
-        downloadSong(song)
+# Main function
+def main():
+    output_directory = "yt-mp3"
 
-else:
-    print("Downloading Mp3....")
-    downloadSong(url)
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
 
-print("\nDownload Location: \n"+os.getcwd()+'/yt-mp3/')
+    if len(sys.argv) == 2:
+        url = sys.argv[1]
+    else:
+        url = input("Enter the YouTube video URL or playlist URL: ")
+
+    handleDownload(url, output_directory)
+
+
+if __name__ == "__main__":
+    main()
